@@ -1,0 +1,69 @@
+VERSION ""
+
+
+NS_ :
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	RET_VAL_
+	CM_DEF_
+	VAL_TABLE_
+
+BS_:
+
+BU_: MasterNode STM32_Relay_Node
+
+BO_ 256 MCU_Relay_Command: 1 MasterNode
+ SG_ Relay_Control_4 : 6|2@1+ (1,0) [0|3] ""  STM32_Relay_Node
+ SG_ Relay_Control_3 : 4|2@1+ (1,0) [0|3] ""  STM32_Relay_Node
+ SG_ Relay_Control_2 : 2|2@1+ (1,0) [0|3] ""  STM32_Relay_Node
+ SG_ Relay_Control_1 : 0|2@1+ (1,0) [0|3] ""  STM32_Relay_Node
+
+BO_ 257 STM32_Relay_Status: 1 STM32_Relay_Node
+ SG_ Relay_Status_4 : 6|2@1+ (1,0) [0|3] ""  MasterNode
+ SG_ Relay_Status_3 : 4|2@1+ (1,0) [0|3] ""  MasterNode
+ SG_ Relay_Status_2 : 2|2@1+ (1,0) [0|3] ""  MasterNode
+ SG_ Relay_Status_1 : 0|2@1+ (1,0) [0|3] ""  MasterNode
+
+BO_ 258 STM32_Relay_Heartbeat: 8 STM32_Relay_Node
+ SG_ HB_AliveCounter : 0|8@1+ (1,0) [0|255] ""  MasterNode
+ SG_ HB_ResetCause : 8|4@1+ (1,0) [0|15] ""  MasterNode
+ SG_ HB_RxOverflow : 12|1@1+ (1,0) [0|1] ""  MasterNode
+ SG_ HB_FeedbackEnabled : 13|1@1+ (1,0) [0|1] ""  MasterNode
+ SG_ HB_UptimeSec : 16|16@1+ (1,0) [0|65535] "s"  MasterNode
+ SG_ HB_RxCmdCount : 32|16@1+ (1,0) [0|65535] ""  MasterNode
+ SG_ HB_TEC : 48|8@1+ (1,0) [0|255] ""  MasterNode
+ SG_ HB_REC : 56|8@1+ (1,0) [0|255] ""  MasterNode
+
+CM_ BO_ 257 "Relay status. Sent every 100 ms and immediately on any change.";
+CM_ BO_ 258 "Heartbeat of STM32_Relay_Node. Sent once right after boot, then every 1000 ms.";
+CM_ SG_ 258 HB_AliveCounter "+1 per heartbeat frame, wraps 255 to 0. Stops changing = node or main loop is dead.";
+CM_ SG_ 258 HB_ResetCause "Why the MCU last started. Latched once at boot from RCC_CSR.";
+CM_ SG_ 258 HB_RxOverflow "1 = at least one MCU_Relay_Command frame was dropped since boot.";
+CM_ SG_ 258 HB_FeedbackEnabled "1 = firmware built with RELAY_FEEDBACK_ENABLE (FAIL detection active).";
+CM_ SG_ 258 HB_UptimeSec "Seconds since boot. Drops back to a small value = node rebooted.";
+CM_ SG_ 258 HB_RxCmdCount "Number of valid MCU_Relay_Command frames processed since boot (wraps).";
+CM_ SG_ 258 HB_TEC "bxCAN transmit error counter (ESR.TEC).";
+CM_ SG_ 258 HB_REC "bxCAN receive error counter (ESR.REC).";
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
+BA_DEF_DEF_  "GenMsgCycleTime" 0;
+BA_ "GenMsgCycleTime" BO_ 257 100;
+BA_ "GenMsgCycleTime" BO_ 258 1000;
+VAL_ 256 Relay_Control_4 3 "TOGGLE" 2 "OFF" 1 "ON" 0 "NO_ACTION" ;
+VAL_ 256 Relay_Control_3 3 "TOGGLE" 2 "OFF" 1 "ON" 0 "NO_ACTION" ;
+VAL_ 256 Relay_Control_2 3 "TOGGLE" 2 "OFF" 1 "ON" 0 "NO_ACTION" ;
+VAL_ 256 Relay_Control_1 3 "TOGGLE" 2 "OFF" 1 "ON" 0 "NO_ACTION" ;
+VAL_ 257 Relay_Status_4 2 "FAIL" 1 "ON" 0 "OFF" ;
+VAL_ 257 Relay_Status_3 2 "FAIL" 1 "ON" 0 "OFF" ;
+VAL_ 257 Relay_Status_2 2 "FAIL" 1 "ON" 0 "OFF" ;
+VAL_ 257 Relay_Status_1 2 "FAIL" 1 "ON" 0 "OFF" ;
+VAL_ 258 HB_ResetCause 6 "LOW_POWER" 5 "WWDG" 4 "IWDG" 3 "SOFTWARE" 2 "PIN_RESET" 1 "POWER_ON" 0 "UNKNOWN" ;
+VAL_ 258 HB_RxOverflow 1 "OVERFLOW" 0 "OK" ;
+VAL_ 258 HB_FeedbackEnabled 1 "ENABLED" 0 "DISABLED" ;
+
